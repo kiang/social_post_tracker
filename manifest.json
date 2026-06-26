@@ -8,8 +8,8 @@
   "content_scripts": [
     {
       "matches": ["https://www.threads.net/*", "https://www.threads.com/*"],
-      "js": ["content.js"],
-      "css": ["content.css"]
+      "js": ["leaflet.js", "content.js"],
+      "css": ["leaflet.css", "content.css"]
     }
   ],
   "options_ui": {
@@ -20,5 +20,10 @@
     "48": "icon48.png",
     "128": "icon128.png"
   },
-  "web_accessible_resources": []
+  "web_accessible_resources": [
+    {
+      "resources": ["images/*"],
+      "matches": ["https://www.threads.net/*", "https://www.threads.com/*"]
+    }
+  ]
 }

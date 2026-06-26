@@ -91,26 +91,17 @@
   function initMap() {
     const mapContainer = document.getElementById('threads-report-map');
     if (!mapContainer) return;
-
-    if (!document.querySelector('link[href*="leaflet"]')) {
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-      document.head.appendChild(link);
-    }
-
-    if (typeof L !== 'undefined') {
-      setupMap();
-      return;
-    }
-
-    const script = document.createElement('script');
-    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-    script.onload = setupMap;
-    document.head.appendChild(script);
+    setupMap();
   }
 
   function setupMap() {
+    delete L.Icon.Default.prototype._getIconUrl;
+    L.Icon.Default.mergeOptions({
+      iconRetinaUrl: chrome.runtime.getURL('images/marker-icon-2x.png'),
+      iconUrl: chrome.runtime.getURL('images/marker-icon.png'),
+      shadowUrl: chrome.runtime.getURL('images/marker-shadow.png'),
+    });
+
     const map = L.map('threads-report-map').setView([23.5, 121], 7);
 
     L.tileLayer('https://wmts.nlsc.gov.tw/wmts/EMAP/default/GoogleMapsCompatible/{z}/{y}/{x}', {
