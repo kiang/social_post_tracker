@@ -4,6 +4,13 @@
   const REPORT_BTN_CLASS = 'threads-report-btn';
   const PROCESSED_ATTR = 'data-report-btn-added';
 
+  function formatTimeUTC8(isoStr) {
+    if (!isoStr) return '';
+    const d = new Date(isoStr);
+    if (isNaN(d)) return isoStr;
+    return d.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' });
+  }
+
   function getPostContainer(shareSvg) {
     let el = shareSvg;
     for (let i = 0; i < 15; i++) {
@@ -97,7 +104,7 @@
     document.body.appendChild(overlay);
 
     document.getElementById('threads-report-url').value = postUrl;
-    document.getElementById('threads-report-time').value = postTime;
+    document.getElementById('threads-report-time').value = formatTimeUTC8(postTime);
     overlay.querySelector('.threads-report-close-btn').addEventListener('click', () => overlay.remove());
 
     initMap();
