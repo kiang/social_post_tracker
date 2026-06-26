@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Threads Issue Reporter - Settings</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 0 20px;
+      color: #333;
+    }
+    h1 {
+      font-size: 22px;
+      margin-bottom: 8px;
+    }
+    p.desc {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 4px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    .field {
+      margin-bottom: 16px;
+    }
+    .hint {
+      font-size: 12px;
+      color: #888;
+      margin-top: 2px;
+    }
+    button {
+      padding: 10px 24px;
+      background: #0095f6;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0081d6;
+    }
+    .status {
+      margin-top: 12px;
+      font-size: 14px;
+      color: #22c55e;
+    }
+    hr {
+      margin: 24px 0;
+      border: none;
+      border-top: 1px solid #e0e0e0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Threads Issue Reporter Settings</h1>
+  <p class="desc">Configure the Google Form that receives report submissions.</p>
+
+  <div class="field">
+    <label>Google Form URL</label>
+    <input type="text" id="formUrl" placeholder="https://docs.google.com/forms/d/e/xxxxx/viewform">
+    <div class="hint">The URL of your Google Form (viewform or edit URL)</div>
+  </div>
+
+  <hr>
+  <p class="desc">Map each field to its Google Form entry ID (e.g., <code>entry.123456789</code>). Open the form's pre-filled link to find these IDs.</p>
+
+  <div class="field">
+    <label>Post URL Field ID</label>
+    <input type="text" id="fieldUrl" placeholder="entry.123456789">
+  </div>
+
+  <div class="field">
+    <label>Latitude Field ID</label>
+    <input type="text" id="fieldLat" placeholder="entry.123456789">
+  </div>
+
+  <div class="field">
+    <label>Longitude Field ID</label>
+    <input type="text" id="fieldLng" placeholder="entry.123456789">
+  </div>
+
+  <div class="field">
+    <label>Notes Field ID</label>
+    <input type="text" id="fieldNotes" placeholder="entry.123456789">
+  </div>
+
+  <button id="save">Save Settings</button>
+  <div class="status" id="status"></div>
+
+  <script src="options.js"></script>
+</body>
+</html>

@@ -1,0 +1,162 @@
+.threads-report-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 4px;
+  transition: background-color 0.2s;
+}
+
+.threads-report-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.threads-report-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: rgb(0, 0, 0);
+}
+
+.threads-report-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.threads-report-popup {
+  background: #fff;
+  border-radius: 12px;
+  width: 560px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.threads-report-popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.threads-report-popup-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.threads-report-close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.threads-report-popup-body {
+  padding: 20px;
+}
+
+.threads-report-popup-body label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.threads-report-popup-body input[type="text"],
+.threads-report-popup-body textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.threads-report-popup-body textarea {
+  height: 60px;
+  resize: vertical;
+}
+
+.threads-report-field {
+  margin-bottom: 12px;
+}
+
+#threads-report-map {
+  width: 100%;
+  height: 300px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-bottom: 12px;
+  cursor: crosshair;
+}
+
+.threads-report-coords {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.threads-report-coords .threads-report-field {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.threads-report-submit-btn {
+  width: 100%;
+  padding: 10px;
+  background: #0095f6;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.threads-report-submit-btn:hover {
+  background: #0081d6;
+}
+
+.threads-report-submit-btn:disabled {
+  background: #b2dffc;
+  cursor: not-allowed;
+}
+
+.threads-report-status {
+  text-align: center;
+  margin-top: 8px;
+  font-size: 13px;
+  min-height: 20px;
+}
+
+.threads-report-status.success {
+  color: #22c55e;
+}
+
+.threads-report-status.error {
+  color: #ef4444;
+}

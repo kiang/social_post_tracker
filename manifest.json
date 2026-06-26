@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Threads Issue Reporter",
+  "version": "1.0",
+  "description": "Add a report button to Threads posts to submit location-based reports to Google Forms",
+  "permissions": ["storage"],
+  "host_permissions": ["https://www.threads.net/*", "https://www.threads.com/*"],
+  "content_scripts": [
+    {
+      "matches": ["https://www.threads.net/*", "https://www.threads.com/*"],
+      "js": ["content.js"],
+      "css": ["content.css"]
+    }
+  ],
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "icons": {
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "web_accessible_resources": []
+}
