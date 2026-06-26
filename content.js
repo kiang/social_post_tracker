@@ -4,21 +4,29 @@
   const REPORT_BTN_CLASS = 'threads-report-btn';
   const PROCESSED_ATTR = 'data-report-btn-added';
 
-  function getPostUrl(shareSvg) {
+  function getPostContainer(shareSvg) {
     let el = shareSvg;
     for (let i = 0; i < 15; i++) {
       el = el.parentElement;
       if (!el) break;
-      const link = el.querySelector('a[href*="/post/"]');
-      if (link) return link.href;
+      if (el.querySelector('a[href*="/post/"]')) return el;
     }
-    if (window.location.pathname.includes('/post/')) {
-      return window.location.href;
-    }
+    return document.body;
+  }
+
+  function getPostUrl(container) {
+    const link = container.querySelector('a[href*="/post/"]');
+    if (link) return link.href;
+    if (window.location.pathname.includes('/post/')) return window.location.href;
     return window.location.href;
   }
 
-  function createReportButton(postUrl) {
+  function getPostTime(container) {
+    const timeEl = container.querySelector('time[datetime]');
+    return timeEl ? timeEl.getAttribute('datetime') : '';
+  }
+
+  function createReportButton(postUrl, postTime) {
     const btn = document.createElement('button');
     btn.className = REPORT_BTN_CLASS;
     btn.title = 'Report location issue';
@@ -28,12 +36,12 @@
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      openReportPopup(postUrl);
+      openReportPopup(postUrl, postTime);
     });
     return btn;
   }
 
-  function openReportPopup(postUrl) {
+  function openReportPopup(postUrl, postTime) {
     if (document.querySelector('.threads-report-overlay')) return;
 
     const overlay = document.createElement('div');
@@ -53,6 +61,10 @@
         <div class="threads-report-field">
           <label>Post URL</label>
           <input type="text" id="threads-report-url" readonly>
+        </div>
+        <div class="threads-report-field">
+          <label>Post Time</label>
+          <input type="text" id="threads-report-time" readonly>
         </div>
         <div class="threads-report-field">
           <label>Click on the map to set location</label>
@@ -85,6 +97,7 @@
     document.body.appendChild(overlay);
 
     document.getElementById('threads-report-url').value = postUrl;
+    document.getElementById('threads-report-time').value = postTime;
     overlay.querySelector('.threads-report-close-btn').addEventListener('click', () => overlay.remove());
 
     initMap();
@@ -180,6 +193,7 @@
 
   function submitReport() {
     const postUrl = document.getElementById('threads-report-url').value;
+    const postTime = document.getElementById('threads-report-time').value;
     const lat = document.getElementById('threads-report-lat').value;
     const lng = document.getElementById('threads-report-lng').value;
     const notes = document.getElementById('threads-report-notes').value;
@@ -192,7 +206,7 @@
       return;
     }
 
-    chrome.storage.sync.get(['formUrl', 'fieldUrl', 'fieldLat', 'fieldLng', 'fieldNotes'], (config) => {
+    chrome.storage.sync.get(['formUrl', 'fieldUrl', 'fieldTime', 'fieldLat', 'fieldLng', 'fieldNotes'], (config) => {
       if (!config.formUrl) {
         statusEl.className = 'threads-report-status error';
         statusEl.textContent = 'Google Form URL not configured. Please set it in extension options.';
@@ -213,6 +227,9 @@
       const submitUrl = buildSubmitUrl(config.formUrl, formId);
       const params = new URLSearchParams();
       params.append(config.fieldUrl || 'entry.0', postUrl);
+      if (config.fieldTime) {
+        params.append(config.fieldTime, postTime);
+      }
       params.append(config.fieldLat || 'entry.1', lat);
       params.append(config.fieldLng || 'entry.2', lng);
       if (config.fieldNotes) {
@@ -255,8 +272,10 @@
 
       if (actionBar.getAttribute(PROCESSED_ATTR)) return;
 
-      const postUrl = getPostUrl(shareSvg);
-      const reportBtn = createReportButton(postUrl);
+      const container = getPostContainer(shareSvg);
+      const postUrl = getPostUrl(container);
+      const postTime = getPostTime(container);
+      const reportBtn = createReportButton(postUrl, postTime);
 
       actionBar.appendChild(reportBtn);
       actionBar.setAttribute(PROCESSED_ATTR, 'true');
