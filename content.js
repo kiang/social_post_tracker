@@ -58,6 +58,10 @@
           <label>Click on the map to set location</label>
           <div id="threads-report-map"></div>
         </div>
+        <div class="threads-report-field">
+          <label>Paste coordinates</label>
+          <input type="text" id="threads-report-latlng" placeholder="23.5, 120.5">
+        </div>
         <div class="threads-report-coords">
           <div class="threads-report-field">
             <label>Latitude</label>
@@ -115,6 +119,7 @@
       const { lat, lng } = e.latlng;
       document.getElementById('threads-report-lat').value = lat.toFixed(6);
       document.getElementById('threads-report-lng').value = lng.toFixed(6);
+      document.getElementById('threads-report-latlng').value = lat.toFixed(6) + ', ' + lng.toFixed(6);
 
       if (marker) {
         marker.setLatLng(e.latlng);
@@ -140,6 +145,23 @@
     };
     latInput.addEventListener('change', updateFromInputs);
     lngInput.addEventListener('change', updateFromInputs);
+
+    const latlngInput = document.getElementById('threads-report-latlng');
+    const parseAndUpdate = () => {
+      const val = latlngInput.value.trim();
+      const parts = val.split(/[,\s]+/).filter(Boolean);
+      if (parts.length >= 2) {
+        const lat = parseFloat(parts[0]);
+        const lng = parseFloat(parts[1]);
+        if (!isNaN(lat) && !isNaN(lng)) {
+          latInput.value = lat.toFixed(6);
+          lngInput.value = lng.toFixed(6);
+          updateFromInputs();
+        }
+      }
+    };
+    latlngInput.addEventListener('input', parseAndUpdate);
+    latlngInput.addEventListener('change', parseAndUpdate);
 
     setTimeout(() => map.invalidateSize(), 100);
   }
