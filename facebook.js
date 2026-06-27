@@ -92,7 +92,7 @@
     return relText;
   }
 
-  function getPostTime(shareBtn) {
+  function findNearestTimeLink(shareBtn) {
     const btnRect = shareBtn.getBoundingClientRect();
     const taggedLinks = document.querySelectorAll('a[' + TIME_LINK_ATTR + ']');
     let best = null;
@@ -113,6 +113,23 @@
       }
     });
 
+    return best;
+  }
+
+  function triggerTimeLinkHover(timeLink) {
+    if (!timeLink) return;
+    const r = timeLink.getBoundingClientRect();
+    if (r.width === 0 || r.top < 0 || r.top > window.innerHeight) {
+      timeLink.scrollIntoView({ block: 'center', behavior: 'instant' });
+    }
+    timeLink.dispatchEvent(new PointerEvent('pointerover', { bubbles: true }));
+    timeLink.dispatchEvent(new PointerEvent('pointerenter', { bubbles: true }));
+    timeLink.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+    timeLink.focus();
+  }
+
+  function getPostTime(shareBtn) {
+    const best = findNearestTimeLink(shareBtn);
     if (!best) return '';
     if (tooltipTimeCache.has(best)) {
       return tooltipTimeCache.get(best);
@@ -154,32 +171,50 @@
   tooltipObserver.observe(document.body, { childList: true, subtree: true });
 
   function getPostUrl(shareBtn) {
-    if (window.location.pathname.includes('/posts/') ||
+    if (!window.location.pathname.startsWith('/search') &&
+        (window.location.pathname.includes('/posts/') ||
         window.location.pathname.includes('/permalink/') ||
         window.location.pathname.includes('/videos/') ||
         window.location.pathname.startsWith('/watch') ||
         window.location.pathname.startsWith('/reel/') ||
         window.location.href.includes('story_fbid') ||
-        window.location.href.includes('pfbid')) {
+        window.location.href.includes('pfbid'))) {
       return window.location.href.split('?')[0];
     }
 
     const btnRect = shareBtn.getBoundingClientRect();
+    const SCAN_RANGE = 900;
 
     const videoDivs = document.querySelectorAll('[data-video-id]');
     for (const vd of videoDivs) {
       const r = vd.getBoundingClientRect();
       if (r.width === 0) continue;
       if (r.top > btnRect.top) continue;
-      if (btnRect.top - r.top < 800) {
+      if (btnRect.top - r.top < SCAN_RANGE) {
         return 'https://www.facebook.com/watch/?v=' + vd.getAttribute('data-video-id');
       }
+    }
+
+    const taggedLinks = document.querySelectorAll('a[' + TIME_LINK_ATTR + ']');
+    for (const tl of taggedLinks) {
+      const r = tl.getBoundingClientRect();
+      if (r.top > btnRect.top) continue;
+      if (btnRect.top - r.top > SCAN_RANGE) continue;
+      try {
+        const u = new URL(tl.href);
+        if (u.pathname.includes('/posts/') || tl.href.includes('pfbid') || u.pathname.includes('/permalink/') || u.search.includes('story_fbid')) {
+          return tl.href.split('?')[0];
+        }
+      } catch (e) {}
     }
 
     const allLinks = document.querySelectorAll('a[href]');
     let profileId = null;
     let username = null;
     let fbid = null;
+    let postIdFromSet = null;
+    let storyPostId = null;
+    let storyPageId = null;
     let directPostUrl = null;
 
     for (const a of allLinks) {
@@ -187,10 +222,12 @@
         const r = a.getBoundingClientRect();
         if (r.width === 0 && r.height === 0) continue;
         if (r.top > btnRect.top) continue;
-        if (btnRect.top - r.top > 800) continue;
+        if (btnRect.top - r.top > SCAN_RANGE) continue;
 
         const u = new URL(a.href);
         const p = u.pathname;
+
+        if (p.startsWith('/search')) continue;
 
         if (p.includes('/posts/') || a.href.includes('pfbid') || p.includes('/permalink/') || u.search.includes('story_fbid')) {
           directPostUrl = a.href.split('?')[0];
@@ -198,11 +235,23 @@
         if (p === '/watch/' && u.searchParams.get('v')) {
           directPostUrl = 'https://www.facebook.com/watch/?v=' + u.searchParams.get('v');
         }
-        if (p.startsWith('/reel/') || p.startsWith('/watch/')) {
+        if ((p.startsWith('/reel/') && p.length > 7) || (p.startsWith('/watch/') && p.length > 8)) {
           if (!directPostUrl) directPostUrl = a.href.split('?')[0];
         }
         if (p.includes('/videos/')) {
           if (!directPostUrl) directPostUrl = a.href.split('?')[0];
+        }
+
+        if (p.startsWith('/stories/')) {
+          const parts = p.split('/').filter(Boolean);
+          if (parts.length >= 3) {
+            storyPageId = parts[1];
+            try {
+              const decoded = atob(parts[2]);
+              const idMatch = decoded.match(/:(\d+)$/);
+              if (idMatch) storyPostId = idMatch[1];
+            } catch (e) {}
+          }
         }
 
         if (p === '/profile.php' && u.searchParams.get('id')) {
@@ -216,11 +265,26 @@
 
         if ((p === '/photo/' || p === '/photo') && u.searchParams.get('fbid')) {
           fbid = u.searchParams.get('fbid');
+          const set = u.searchParams.get('set') || '';
+          const pcbMatch = set.match(/^pcb\.(\d+)$/);
+          if (pcbMatch) postIdFromSet = pcbMatch[1];
         }
       } catch (e) {}
     }
 
     if (directPostUrl) return directPostUrl;
+    if (storyPostId && username) {
+      return 'https://www.facebook.com' + username + '/posts/' + storyPostId;
+    }
+    if (storyPostId && storyPageId) {
+      return 'https://www.facebook.com/permalink.php?story_fbid=' + storyPostId + '&id=' + storyPageId;
+    }
+    if (postIdFromSet && username) {
+      return 'https://www.facebook.com' + username + '/posts/' + postIdFromSet;
+    }
+    if (postIdFromSet && profileId) {
+      return 'https://www.facebook.com/permalink.php?story_fbid=' + postIdFromSet + '&id=' + profileId;
+    }
     if (fbid && profileId) {
       return 'https://www.facebook.com/permalink.php?story_fbid=' + fbid + '&id=' + profileId;
     }
@@ -247,9 +311,22 @@
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      const postUrl = getPostUrl(shareBtn);
-      const postTime = getPostTime(shareBtn);
-      openReportPopup(postUrl, postTime);
+      const timeLink = findNearestTimeLink(shareBtn);
+      triggerTimeLinkHover(timeLink);
+      const tryOpen = (attempt) => {
+        const postUrl = getPostUrl(shareBtn);
+        const postTime = getPostTime(shareBtn);
+        const looksValid = postUrl.includes('/posts/') || postUrl.includes('pfbid') ||
+          postUrl.includes('/permalink') || postUrl.includes('story_fbid') ||
+          postUrl.includes('/watch/') || postUrl.includes('/reel/') || postUrl.includes('/videos/');
+        if (!looksValid && attempt < 5) {
+          triggerTimeLinkHover(timeLink);
+          setTimeout(() => tryOpen(attempt + 1), 500);
+          return;
+        }
+        openReportPopup(postUrl, postTime);
+      };
+      setTimeout(() => tryOpen(1), 800);
     });
     return btn;
   }
