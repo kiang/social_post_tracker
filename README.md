@@ -1,6 +1,6 @@
-# Threads Issue Reporter
+# Social Post Tracker
 
-A Chrome extension that adds a location report button to Threads and Facebook posts. Click the map pin icon next to any post's share button to submit a location-based report to a Google Form.
+A Chrome extension that adds a location tracking button to Threads and Facebook posts. Click the map pin icon next to any post's share button to submit a location-based report to a Google Form.
 
 ## Features
 

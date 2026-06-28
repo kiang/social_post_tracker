@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Threads Issue Reporter",
+  "name": "Social Post Tracker",
   "version": "1.1",
-  "description": "Add a report button to Threads and Facebook posts to submit location-based reports to Google Forms",
+  "description": "Track social media posts by adding a location report button to Threads and Facebook posts, submitting reports to Google Forms",
   "permissions": ["storage"],
   "host_permissions": ["https://www.threads.net/*", "https://www.threads.com/*", "https://www.facebook.com/*"],
   "content_scripts": [
